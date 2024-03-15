@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import { onMount } from 'svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import * as Command from '$lib/components/ui/command';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Sun, Moon, SunMoon, UserRound, LogOut } from 'lucide-svelte';
 	import { setMode, resetMode } from 'mode-watcher';
 	import { APP_NAME } from '$lib/config/constants';
-	import Logo from '$lib/components/logo/logo.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import convertNameToInitials from '$lib/_helpers/convertNameToInitials';
@@ -23,6 +22,10 @@
 		form.submit();
 	}
 
+	onMount(() => {
+		setMode('dark');
+	});
+
 	let initials: string = '';
 	$: {
 		if (user) {
@@ -35,9 +38,9 @@
 	<div class="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
 		<div class="flex gap-6 md:gap-10">
 			<a class="flex items-center space-x-2" href="/"
-				><Logo size="24"></Logo><span class="inline-block font-bold">{APP_NAME}</span></a
+				> <img src="/logo.svg" alt="Logo" width="24" height="24" /><span class="inline-block font-bold">{APP_NAME}</span></a
 			>
-			<nav class="flex gap-6">
+			<!-- <nav class="flex gap-6">
 				<a
 					class="flex items-center text-sm font-medium text-muted-foreground"
 					href="/"
@@ -48,12 +51,12 @@
 					href="/dashboard"
 					class:active={'/dashboard' === currentPage}>Protected</a
 				>
-			</nav>
+			</nav> -->
 		</div>
 		<div class="flex flex-1 items-center justify-end space-x-4">
 			<nav class="flex items-center space-x-1">
 				{#if !user}
-					<Button on:click={() => goto('/auth/sign-in')}>Sign in</Button>
+					<!-- <Button on:click={() => goto('/auth/sign-in')}>Sign in</Button> -->
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger asChild let:builder>
 							<Button builders={[builder]} variant="ghost" size="icon">

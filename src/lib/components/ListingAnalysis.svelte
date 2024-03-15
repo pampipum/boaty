@@ -9,6 +9,11 @@
 
   let analysisResults: string[] = Array(selectedBoats.length).fill('');
   let isLoading: boolean[] = Array(selectedBoats.length).fill(false);
+  let showComparisonButton = false;
+  let comparisonAnalysisResult = '';
+  let isComparisonLoading = false;
+
+  $: showComparisonButton = selectedBoats.length >= 2;
 
   const dispatch = createEventDispatcher();
 
@@ -39,6 +44,29 @@
 
     isLoading[index] = false;
   }
+
+  async function analyzeComparison() {
+    const boatDataArray = combinedData.filter((_, i) => selectedBoats[i]);
+
+    isComparisonLoading = true;
+
+    const response = await fetch('/compare-boats', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ data: boatDataArray }),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      comparisonAnalysisResult = result.content[0].text;
+    } else {
+      console.error('Error analyzing comparison:', response.statusText);
+    }
+
+    isComparisonLoading = false;
+  }
   </script>
   
   <Table.Header>
@@ -50,7 +78,7 @@
             <span class="text-white">Loading...</span>
           {:else}
             <Button on:click={() => analyzeListing(i)}>
-              Send Data to LLM
+              Expert Report
             </Button>
           {/if}
         </Table.Head>
@@ -70,6 +98,33 @@
       {/each}
     </Table.Row>
   </Table.Body>
+  {#if showComparisonButton}
+  <Table.Header>
+    <Table.Row>
+      <Table.Head class="bg-gray-700 text-white py-4" colspan={selectedBoats.length + 1}>
+        {#if isComparisonLoading}
+          <span class="text-white">Loading comparison...</span>
+        {:else}
+          <Button on:click={analyzeComparison}>
+            Comparison Analysis
+          </Button>
+        {/if}
+      </Table.Head>
+    </Table.Row>
+  </Table.Header>
+
+  {#if comparisonAnalysisResult}
+    <Table.Body>
+      <Table.Row>
+        <Table.Cell colspan={selectedBoats.length + 1}>
+          <div class="w-full p-4 border rounded whitespace-pre-wrap overflow-auto">
+            {comparisonAnalysisResult}
+          </div>
+        </Table.Cell>
+      </Table.Row>
+    </Table.Body>
+  {/if}
+{/if}
   
   <style>
     div {
