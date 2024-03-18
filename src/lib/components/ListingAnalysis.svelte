@@ -4,7 +4,7 @@
   import { Button } from "$lib/components/ui/button";
   import { createEventDispatcher } from 'svelte';
 
-  export let selectedBoats: string[];
+  export let selectedBoats: any[];
   export let combinedData: { [key: string]: any }[];
 
   let analysisResults: string[] = Array(selectedBoats.length).fill('');
@@ -38,6 +38,9 @@
     if (response.ok) {
       const result = await response.json();
       analysisResults[index] = result.content[0].text;
+      
+      // Dispatch the dataUpdated event with the updated data
+      dispatch('dataUpdated', { index, data: { ...combinedData[index], analysisResult: result.content[0].text } });
     } else {
       console.error('Error analyzing listing:', response.statusText);
     }
@@ -46,7 +49,7 @@
   }
 
   async function analyzeComparison() {
-    const boatDataArray = combinedData.filter((_, i) => selectedBoats[i]);
+    const boatDataArray = combinedData.filter((data) => data);
 
     isComparisonLoading = true;
 

@@ -6,7 +6,6 @@ import { sailboatsTable } from '$lib/server/database/drizzle-schemas'; // Adjust
 // Function to get all sailboats
 export const getAllSailboats = async () => {
 	console.log('Database: Querying for all sailboats');
-	// Assuming `db` is your database instance
 	const sailboats = await db.select().from(sailboatsTable);
 	console.log(`Database: Queried ${sailboats.length} sailboats`);
 	return sailboats;
@@ -20,4 +19,12 @@ export const getSailboatByModel = async (model: string) => {
 	} else {
 		return sailboat[0];
 	}
+};
+
+// Function to get all sailboat models
+export const getAllSailboatModels = async () => {
+	console.log('Database: Querying for all sailboat models');
+	const sailboatModels = await db.select({ model: sailboatsTable.model }).from(sailboatsTable);
+	console.log(`Database: Queried ${sailboatModels.length} sailboat models`);
+	return sailboatModels;
 };

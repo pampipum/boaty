@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		});
 
 		const response = await anthropic.messages.create({
-			model: 'claude-instant-1.2',
+			model: 'claude-3-haiku-20240307',
 			max_tokens: 2000,
 			system: BOAT_BROKER_PROMPT,
 			messages: [

@@ -1,13 +1,13 @@
+
 <!-- src/lib/components/ComparisonChart.svelte -->
 <script lang="ts">
-    import Chart from 'chart.js/auto';
-    import * as Accordion from '$lib/components/ui/accordion';
-  
-    export let selectedBoats: string[];
-    export let data: { sailboats: any[] } | undefined;
-  
-    let chartElement: HTMLCanvasElement;
-    let chart: Chart;
+  import Chart from 'chart.js/auto';
+  import * as Accordion from '$lib/components/ui/accordion';
+
+  export let selectedBoats: any[];
+
+  let chartElement: HTMLCanvasElement;
+  let chart: Chart;
   
     const metricRanges = [
     {
@@ -61,18 +61,18 @@
   ];
   
   $: {
-    if (selectedBoats.length > 0 && data && chartElement) {
+    if (selectedBoats.length > 0 && chartElement) {
       const radarData = {
         labels: metricRanges.map(metric => metric.name),
-        datasets: selectedBoats.map((boatModel, index) => ({
-          label: data.sailboats.find(boat => boat.model === boatModel)?.model || '',
+        datasets: selectedBoats.map((boat, index) => ({
+          label: boat.model || '',
           data: [
-            parseFloat(data.sailboats.find(boat => boat.model === boatModel)?.sa_displ) || 0,
-            parseFloat(data.sailboats.find(boat => boat.model === boatModel)?.bal_displ) || 0,
-            parseFloat(data.sailboats.find(boat => boat.model === boatModel)?.disp_len) || 0,
-            parseFloat(data.sailboats.find(boat => boat.model === boatModel)?.comfort_ratio) || 0,
-            parseFloat(data.sailboats.find(boat => boat.model === boatModel)?.capsize_screening_formula) || 0,
-            parseFloat(data.sailboats.find(boat => boat.model === boatModel)?.hull_speed) || 0
+            parseFloat(boat.sa_displ) || 0,
+            parseFloat(boat.bal_displ) || 0,
+            parseFloat(boat.disp_len) || 0,
+            parseFloat(boat.comfort_ratio) || 0,
+            parseFloat(boat.capsize_screening_formula) || 0,
+            parseFloat(boat.hull_speed) || 0
           ],
           fill: true
         }))
@@ -117,38 +117,38 @@
       }
     }
   }
-  </script>
+</script>
   
-  <div class="grid grid-cols-3">
-    {#if selectedBoats.length > 0}
-      <div class="col-span-2">
-        <canvas bind:this={chartElement}></canvas>
-      </div>
-      <div class="col-span-1">
-        <h3 class="font-semibold mb-2">Value Ranges and Meanings:</h3>
-        <Accordion.Root class="w-full">
-          {#each metricRanges as metric}
-            <Accordion.Item value={metric.name}>
-              <Accordion.Trigger>{metric.name}</Accordion.Trigger>
-              <Accordion.Content>
-                <ul class="list-none pl-0">
-                  {#each metric.ranges as range}
-                    <li class="flex items-center mb-1">
-                      <span class="w-4 h-4 inline-block mr-2" style="background-color: {range.color};"></span>
-                      <span class="text-sm">
-                        {range.min} to {range.max === Infinity ? 'more than ' + (range.min + 5) : range.max}: {range.description}
-                      </span>
-                    </li>
-                  {/each}
-                </ul>
-              </Accordion.Content>
-            </Accordion.Item>
-          {/each}
-        </Accordion.Root>
-      </div>
-    {:else}
-      <div class="col-span-3 text-center">
-        <p>No boats selected. Please select at least one boat to display the comparison chart.</p>
-      </div>
-    {/if}
-  </div>
+<div class="grid grid-cols-3">
+  {#if selectedBoats.length > 0}
+    <div class="col-span-2">
+      <canvas bind:this={chartElement}></canvas>
+    </div>
+    <div class="col-span-1">
+      <h3 class="font-semibold mb-2">Value Ranges and Meanings:</h3>
+      <Accordion.Root class="w-full">
+        {#each metricRanges as metric}
+          <Accordion.Item value={metric.name}>
+            <Accordion.Trigger>{metric.name}</Accordion.Trigger>
+            <Accordion.Content>
+              <ul class="list-none pl-0">
+                {#each metric.ranges as range}
+                  <li class="flex items-center mb-1">
+                    <span class="w-4 h-4 inline-block mr-2" style="background-color: {range.color};"></span>
+                    <span class="text-sm">
+                      {range.min} to {range.max === Infinity ? 'more than ' + (range.min + 5) : range.max}: {range.description}
+                    </span>
+                  </li>
+                {/each}
+              </ul>
+            </Accordion.Content>
+          </Accordion.Item>
+        {/each}
+      </Accordion.Root>
+    </div>
+  {:else}
+    <div class="col-span-3 text-center">
+      <p>No boats selected. Please select at least one boat to display the comparison chart.</p>
+    </div>
+  {/if}
+</div>

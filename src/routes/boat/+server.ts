@@ -3,6 +3,8 @@ import type { RequestHandler } from '@sveltejs/kit';
 import Anthropic from '@anthropic-ai/sdk';
 import { CLAUDE_API_KEY } from '$env/static/private';
 import { BOAT_BROKER_PROMPT } from './prompts';
+import { getSailboatByModel } from '$lib/server/database/sailboat-model';
+import { json } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const { data } = await request.json();
@@ -14,7 +16,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		});
 
 		const response = await anthropic.messages.create({
-			model: 'claude-instant-1.2',
+			model: 'claude-3-haiku-20240307',
 			max_tokens: 2000, // Increased max_tokens value
 			system: BOAT_BROKER_PROMPT,
 			messages: [
@@ -41,4 +43,26 @@ export const POST: RequestHandler = async ({ request }) => {
 			status: 500
 		});
 	}
+};
+
+export const GET: RequestHandler = async ({ url }) => {
+	const model = url.searchParams.get('model');
+
+	if (model) {
+		try {
+			const sailboat = await getSailboatByModel(model);
+			if (sailboat) {
+				console.log(`Server: Fetched data for sailboat model ${model}`);
+				return json(sailboat);
+			} else {
+				console.log(`Server: No data found for sailboat model ${model}`);
+				return json({ message: 'Sailboat not found' }, { status: 404 });
+			}
+		} catch (e) {
+			console.error(`Server: Failed to fetch sailboat data - ${e.message}`);
+			return json({ message: 'Failed to fetch sailboat data' }, { status: 500 });
+		}
+	}
+
+	return json({ message: 'No model provided' }, { status: 400 });
 };

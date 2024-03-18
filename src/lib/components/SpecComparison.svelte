@@ -5,12 +5,9 @@
   import { X } from 'lucide-svelte';
   import * as Dialog from "$lib/components/ui/dialog";
   import { buttonVariants } from "$lib/components/ui/button/index.js";
-  import { Toggle } from "$lib/components/ui/toggle/index.js";
-  import { Ruler } from 'lucide-svelte';
-	import { Link } from "./ui/pagination";
+  import { Link } from "./ui/pagination";
 
-  export let selectedBoats: string[];
-  export let data: { sailboats: any[] } | undefined;
+  export let selectedBoats: any[];
 
   const dispatch = createEventDispatcher();
 
@@ -19,36 +16,26 @@
   }
 
   let userEnteredData: { [key: string]: string }[] = selectedBoats.map(() => ({}));
-  let isMetric = false;
 
   function updateUserData(index: number, field: string, value: string) {
     if (!userEnteredData[index]) {
       userEnteredData[index] = {};
     }
     userEnteredData[index][field] = value;
-    const boatData = data.sailboats.find(boat => boat.model === selectedBoats[index]);
+    const boatData = selectedBoats[index];
     const combinedData = { ...boatData, ...userEnteredData[index] };
-    dispatch('dataUpdated', { index, data: combinedData });
+    dispatch('dataUpdated', { model: boatData.model, data: combinedData });
   }
-
- 
 </script>
 
 <Table.Header>
   <Table.Row>
-    <Table.Head class="bg-gray-800 text-white py-4">Spec Comparison
-
-          <Toggle bind:pressed={isMetric}>
-            <Ruler class="mr-2 h-4 w-4" />
-            <span>{isMetric ? 'Metric' : 'Imperial'}</span>
-          </Toggle>
-
-    </Table.Head>
-    {#each selectedBoats as boatModel, i}
+    <Table.Head class="bg-gray-800 text-white py-4">Spec Comparison</Table.Head>
+    {#each selectedBoats as boat, i}
       <Table.Head class="bg-gray-800 text-white py-4">
         Boat {i + 1}
-        <button class="ml-2 text-red-500" on:click={() => removeBoat(i)}>
-          <X class="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+        <button class="ml-2 text-red-500 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50" on:click={() => removeBoat(i)}>
+          <X class="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:rotate-90 dark:scale-100" />
         </button>
       </Table.Head>
     {/each}
@@ -57,16 +44,18 @@
 <Table.Body>
   <Table.Row>
     <Table.Cell class="font-semibold">Model</Table.Cell>
-    {#each selectedBoats as boatModel}
-      <Table.Cell>{boatModel}</Table.Cell>
+    {#each selectedBoats as boat}
+      <Table.Cell>{boat.model}</Table.Cell>
     {/each}
   </Table.Row>
   <Table.Row>
     <Table.Cell class="font-semibold">Link</Table.Cell>
-    {#each selectedBoats as boatModel}
-    <Table.Cell>        <a href="{data.sailboats.find(boat => boat.model === boatModel).link}" target="_blank">
-      Link
-    </a></Table.Cell>
+    {#each selectedBoats as boat}
+      <Table.Cell>
+        <a href="{boat.link}" target="_blank">
+          Link
+        </a>
+      </Table.Cell>
     {/each}
   </Table.Row>
   <Table.Row>
@@ -84,7 +73,7 @@
         </Dialog.Content>
       </Dialog.Root>
     </Table.Cell>
-    {#each selectedBoats as boatModel, i}
+    {#each selectedBoats as _, i}
       <Table.Cell>
         <Textarea placeholder="Paste listing text here" class="w-full" on:input={e => updateUserData(i, 'listingText', e.target.value)} />
       </Table.Cell>

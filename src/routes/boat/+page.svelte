@@ -1,34 +1,50 @@
 <!-- src/routes/boat/+page.svelte -->
 <script lang="ts">
   import * as Table from "$lib/components/ui/table";
-  import { Input } from "$lib/components/ui/input";
+
   import SpecComparison from "$lib/components/SpecComparison.svelte";
   import ListingAnalysis from "$lib/components/ListingAnalysis.svelte";
   import ComparisonChart from "$lib/components/ComparisonChart.svelte";
 
-  export let data: { sailboats: any[] } | undefined;
+  export let data: { sailboatModels: any[] } | undefined;
 
   let searchQuery = '';
   let filteredBoats: any[] = [];
-  let selectedBoats: string[] = [];
+  let selectedBoats: any[] = [];
   let combinedData: { [key: string]: any }[] = [];
 
   // Function to filter the sailboats based on the search query
   function filterBoats(query: string) {
     searchQuery = query;
-    filteredBoats = data.sailboats.filter((boat) =>
+    filteredBoats = data.sailboatModels.filter((boat) =>
       boat.model.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }
 
-  // Function to handle boat selection
-  function selectBoat(model: string) {
-    if (!selectedBoats.includes(model)) {
-      selectedBoats = [...selectedBoats, model];
+// Function to handle boat selection
+async function selectBoat(model: string) {
+  try {
+    const response = await fetch(`/boat?model=${encodeURIComponent(model)}`);
+    if (response.ok) {
+      const sailboat = await response.json();
+      // Add the selected boat to the selectedBoats array
+      selectedBoats = [...selectedBoats, sailboat];
+      // Update the data object with the selected boat
+      data = { ...data, [model]: sailboat };
+      
+      // Add the selected boat data to the combinedData array
+      combinedData = [...combinedData, sailboat];
+      
+      // Clear the search query and filtered boats
+      searchQuery = '';
+      filteredBoats = [];
+    } else {
+      console.error('Failed to fetch boat data');
     }
-    searchQuery = '';
-    filteredBoats = [];
+  } catch (error) {
+    console.error('Error fetching boat data:', error);
   }
+}
 
   // Function to remove a boat from the comparison
   function removeBoat(index: number) {
@@ -37,10 +53,10 @@
   }
 
   function handleDataUpdated(event: CustomEvent<{ index: number; data: any }>) {
-    const { index, data } = event.detail;
-    combinedData[index] = data;
-    combinedData = combinedData;
-  }
+  const { index, data } = event.detail;
+  combinedData[index] = data;
+  combinedData = [...combinedData];
+}
 </script>
 
 {#if data}
@@ -58,30 +74,30 @@
       />
       {#if filteredBoats.length > 0}
         <ul class="absolute z-10 w-full bg-white shadow-lg max-h-60 overflow-auto dropdown-menu">
-          {#each filteredBoats as boat (boat.id)}
-            <li>
-              <button
+          {#each filteredBoats as boat (boat.model)}
+          <li>
+            <button
               type="button"
               on:click={() => selectBoat(boat.model)}
               class="block w-full text-left p-2 hover:bg-muted hover:text-muted-foreground"
             >
               {boat.model}
             </button>
-            </li>
-          {/each}
+          </li>
+        {/each}
         </ul>
       {/if}
     </div>
 
     <!-- Render the table -->
     <Table.Root class="shadow-lg rounded-lg overflow-hidden">
-      <SpecComparison {selectedBoats} {data} on:removeBoat={(e) => removeBoat(e.detail)} on:dataUpdated={handleDataUpdated}/>
+      <SpecComparison {selectedBoats} on:removeBoat={(e) => removeBoat(e.detail)} on:dataUpdated={handleDataUpdated}/>
 
       <!-- Add the ComparisonChart component -->
       <Table.Row>
         <Table.Cell colspan={selectedBoats.length + 1}>
           <div class="p-4">
-            <ComparisonChart {selectedBoats} {data} />
+            <ComparisonChart {selectedBoats} />
           </div>
         </Table.Cell>
       </Table.Row>
