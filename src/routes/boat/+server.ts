@@ -6,42 +6,51 @@ import { BOAT_BROKER_PROMPT } from './prompts';
 import { getSailboatByModel } from '$lib/server/database/sailboat-model';
 import { json } from '@sveltejs/kit';
 
+const maxTries = 3;
+
 export const POST: RequestHandler = async ({ request }) => {
 	const { data } = await request.json();
 	console.log('Server received data:', data);
 
-	try {
-		const anthropic = new Anthropic({
-			apiKey: CLAUDE_API_KEY
-		});
+	let tries = 0;
+	while (tries < maxTries) {
+		try {
+			const anthropic = new Anthropic({
+				apiKey: CLAUDE_API_KEY
+			});
 
-		const response = await anthropic.messages.create({
-			model: 'claude-3-haiku-20240307',
-			max_tokens: 1500, // Increased max_tokens value
-			system: BOAT_BROKER_PROMPT,
-			messages: [
-				{
-					role: 'user',
-					content: `
-                        Boat data:
-                        ${JSON.stringify(data, null, 2)}` // Stringify the data object for better formatting
+			const response = await anthropic.messages.create({
+				model: 'claude-3-haiku-20240307',
+				max_tokens: 1500,
+				system: BOAT_BROKER_PROMPT,
+				messages: [
+					{
+						role: 'user',
+						content: `
+                            Boat data:
+                            ${JSON.stringify(data, null, 2)}`
+					}
+				]
+			});
+
+			console.log('Server response:', response);
+
+			return new Response(JSON.stringify(response), {
+				status: 200,
+				headers: {
+					'Content-Type': 'application/json'
 				}
-			]
-		});
-
-		console.log('Server response:', response);
-
-		return new Response(JSON.stringify(response), {
-			status: 200,
-			headers: {
-				'Content-Type': 'application/json'
+			});
+		} catch (error) {
+			console.error('Error:', error);
+			tries++;
+			if (tries === maxTries) {
+				return new Response('An error occurred while processing the request.', {
+					status: 500
+				});
 			}
-		});
-	} catch (error) {
-		console.error('Error:', error);
-		return new Response('An error occurred while processing the request.', {
-			status: 500
-		});
+			console.log(`Retrying... (Attempt ${tries})`);
+		}
 	}
 };
 
