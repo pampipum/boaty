@@ -7,6 +7,7 @@
   import ComparisonChart from "$lib/components/ComparisonChart.svelte";
 
   export let data: { sailboatModels: any[] } | undefined;
+  
 
   let searchQuery = '';
   let filteredBoats: any[] = [];
@@ -16,26 +17,20 @@
   // Function to filter the sailboats based on the search query
   function filterBoats(query: string) {
     searchQuery = query;
-    filteredBoats = data.sailboatModels.filter((boat) =>
+    filteredBoats = data?.sailboatModels.filter((boat) =>
       boat.model.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    ) || [];
   }
 
-// Function to handle boat selection
-async function selectBoat(model: string) {
+  // Function to handle boat selection
+  async function selectBoat(model: string) {
   try {
     const response = await fetch(`/boat?model=${encodeURIComponent(model)}`);
     if (response.ok) {
       const sailboat = await response.json();
-      // Add the selected boat to the selectedBoats array
       selectedBoats = [...selectedBoats, sailboat];
-      // Update the data object with the selected boat
       data = { ...data, [model]: sailboat };
-      
-      // Add the selected boat data to the combinedData array
       combinedData = [...combinedData, sailboat];
-      
-      // Clear the search query and filtered boats
       searchQuery = '';
       filteredBoats = [];
     } else {
@@ -48,15 +43,18 @@ async function selectBoat(model: string) {
 
   // Function to remove a boat from the comparison
   function removeBoat(index: number) {
-    selectedBoats.splice(index, 1);
-    selectedBoats = [...selectedBoats];
-  }
-
-  function handleDataUpdated(event: CustomEvent<{ index: number; data: any }>) {
-  const { index, data } = event.detail;
-  combinedData[index] = data;
+  selectedBoats.splice(index, 1);
+  selectedBoats = [...selectedBoats];
+  combinedData.splice(index, 1);
   combinedData = [...combinedData];
 }
+
+  function handleDataUpdated(event: CustomEvent<{ index: number; data: any }>) {
+    const { index, data } = event.detail;
+    
+    combinedData[index] = data;
+    combinedData = [...combinedData];
+  }
 </script>
 
 {#if data}
@@ -75,16 +73,16 @@ async function selectBoat(model: string) {
       {#if filteredBoats.length > 0}
         <ul class="absolute z-10 w-full bg-white shadow-lg max-h-60 overflow-auto dropdown-menu">
           {#each filteredBoats as boat (boat.model)}
-          <li>
-            <button
-              type="button"
-              on:click={() => selectBoat(boat.model)}
-              class="block w-full text-left p-2 hover:bg-muted hover:text-muted-foreground"
-            >
-              {boat.model}
-            </button>
-          </li>
-        {/each}
+            <li>
+              <button
+                type="button"
+                on:click={() => selectBoat(boat.model)}
+                class="block w-full text-left p-2 hover:bg-muted hover:text-muted-foreground"
+              >
+                {boat.model}
+              </button>
+            </li>
+          {/each}
         </ul>
       {/if}
     </div>
@@ -102,7 +100,7 @@ async function selectBoat(model: string) {
         </Table.Cell>
       </Table.Row>
 
-      <ListingAnalysis {selectedBoats} {combinedData}/>
+      <ListingAnalysis {selectedBoats} {combinedData} />
     </Table.Root>
   </div>
 {:else}

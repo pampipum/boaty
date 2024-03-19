@@ -3,6 +3,9 @@
   import * as Table from "$lib/components/ui/table";
   import { Button } from "$lib/components/ui/button";
   import { createEventDispatcher } from 'svelte';
+  import { Textarea } from "$lib/components/ui/textarea";
+  import * as Dialog from "$lib/components/ui/dialog";
+  import { buttonVariants } from "$lib/components/ui/button/index";
 
   export let selectedBoats: any[];
   export let combinedData: { [key: string]: any }[];
@@ -19,6 +22,7 @@
 
   async function analyzeListing(index: number) {
     const boatData = combinedData[index];
+    console.log('Boat data sent to server:', boatData);
 
     if (!boatData) {
       console.error('Combined data not found for the selected boat.');
@@ -40,7 +44,7 @@
       analysisResults[index] = result.content[0].text;
       
       // Dispatch the dataUpdated event with the updated data
-      dispatch('dataUpdated', { index, data: { ...combinedData[index], analysisResult: result.content[0].text } });
+      dispatch('dataUpdated', { index, data: { ...boatData, analysisResult: result.content[0].text } });
     } else {
       console.error('Error analyzing listing:', response.statusText);
     }
@@ -70,38 +74,72 @@
 
     isComparisonLoading = false;
   }
-  </script>
+
+  function updateUserData(index: number, field: string, value: string) {
+  if (!combinedData[index]) {
+    combinedData[index] = {};
+  }
+  combinedData[index][field] = value;
+  dispatch('dataUpdated', { index, data: combinedData[index] });
+}
+</script>
   
-  <Table.Header>
-    <Table.Row>
-      <Table.Head class="bg-gray-700 text-white py-4">Listing Analysis</Table.Head>
-      {#each selectedBoats as _, i}
-        <Table.Head class="bg-gray-700 text-white py-4">
-          {#if isLoading[i]}
-            <span class="text-white">Loading...</span>
-          {:else}
-            <Button on:click={() => analyzeListing(i)}>
-              Expert Report
-            </Button>
-          {/if}
-        </Table.Head>
-      {/each}
-    </Table.Row>
-  </Table.Header>
-  
-  <Table.Body>
+<Table.Header>
+  <Table.Row>
+    <Table.Head class="bg-gray-500 text-white py-4">
+      Listing Text
+      <Dialog.Root>
+        <Dialog.Trigger class={buttonVariants({ variant: "outline" })}>More info</Dialog.Trigger>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>Providing Listing Text</Dialog.Title>
+            <Dialog.Description>
+              To provide more information about the boat, please navigate to the boat listing page, copy the relevant text, and paste it into the text area box on the right. The more complete is the information, the better is the analysis.
+            </Dialog.Description>
+          </Dialog.Header>
+        </Dialog.Content>
+      </Dialog.Root>
+    </Table.Head>
+    {#each selectedBoats as _, i}
+    <Table.Head class="bg-gray-500 text-white py-4">
+        <Textarea placeholder="Paste listing text here" class="w-full" on:input={e => updateUserData(i, 'listingText', e.target.value)} />
+      </Table.Head>
+    {/each}
+  </Table.Row>
+</Table.Header>
+
+<Table.Body>
+  <Table.Row>
+    <Table.Cell class="text-white py-4">Listing Analysis</Table.Cell>
+    {#each selectedBoats as _, i}
+      <Table.Cell>
+        {#if isLoading[i]}
+          <span class="text-white">Loading...</span>
+        {:else}
+          <Button on:click={() => analyzeListing(i)}>
+            Expert Report
+          </Button>
+        {/if}
+      </Table.Cell>
+    {/each}
+  </Table.Row>
+  {#if analysisResults.some(result => result !== '')}
     <Table.Row>
       <Table.Cell class="font-semibold">Analysis Result</Table.Cell>
       {#each selectedBoats as _, i}
         <Table.Cell>
-          <div class="w-full p-4 border rounded whitespace-pre-wrap overflow-auto">
-            {analysisResults[i]}
-          </div>
+          {#if analysisResults[i]}
+            <div class="w-full p-4 border rounded whitespace-pre-wrap overflow-auto">
+              {analysisResults[i]}
+            </div>
+          {/if}
         </Table.Cell>
       {/each}
     </Table.Row>
-  </Table.Body>
-  {#if showComparisonButton}
+  {/if}
+</Table.Body>
+
+{#if showComparisonButton}
   <Table.Header>
     <Table.Row>
       <Table.Head class="bg-gray-700 text-white py-4" colspan={selectedBoats.length + 1}>

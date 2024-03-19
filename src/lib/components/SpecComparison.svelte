@@ -1,11 +1,7 @@
 <script lang="ts">
   import * as Table from "$lib/components/ui/table";
-  import { Textarea } from "$lib/components/ui/textarea";
   import { createEventDispatcher } from 'svelte';
   import { X } from 'lucide-svelte';
-  import * as Dialog from "$lib/components/ui/dialog";
-  import { buttonVariants } from "$lib/components/ui/button/index.js";
-  import { Link } from "./ui/pagination";
 
   export let selectedBoats: any[];
 
@@ -25,6 +21,7 @@
     const boatData = selectedBoats[index];
     const combinedData = { ...boatData, ...userEnteredData[index] };
     dispatch('dataUpdated', { model: boatData.model, data: combinedData });
+    console.log('Updated user data:', userEnteredData);
   }
 </script>
 
@@ -49,7 +46,7 @@
     {/each}
   </Table.Row>
   <Table.Row>
-    <Table.Cell class="font-semibold">Link</Table.Cell>
+    <Table.Cell class="font-semibold">Sailboat Database Link</Table.Cell>
     {#each selectedBoats as boat}
       <Table.Cell>
         <a href="{boat.link}" target="_blank">
@@ -58,25 +55,5 @@
       </Table.Cell>
     {/each}
   </Table.Row>
-  <Table.Row>
-    <Table.Cell class="font-semibold">
-      Listing Text
-      <Dialog.Root>
-        <Dialog.Trigger class={buttonVariants({ variant: "outline" })}>More info</Dialog.Trigger>
-        <Dialog.Content>
-          <Dialog.Header>
-            <Dialog.Title>Providing Listing Text</Dialog.Title>
-            <Dialog.Description>
-              To provide more information about the boat, please navigate to the boat listing page, copy the relevant text, and paste it into the text area box on the right.
-            </Dialog.Description>
-          </Dialog.Header>
-        </Dialog.Content>
-      </Dialog.Root>
-    </Table.Cell>
-    {#each selectedBoats as _, i}
-      <Table.Cell>
-        <Textarea placeholder="Paste listing text here" class="w-full" on:input={e => updateUserData(i, 'listingText', e.target.value)} />
-      </Table.Cell>
-    {/each}
-  </Table.Row>
+  
 </Table.Body>

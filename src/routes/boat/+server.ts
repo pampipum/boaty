@@ -8,7 +8,7 @@ import { json } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const { data } = await request.json();
-	console.log('Server request:', data);
+	console.log('Server received data:', data);
 
 	try {
 		const anthropic = new Anthropic({
