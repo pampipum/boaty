@@ -17,7 +17,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const response = await anthropic.messages.create({
 			model: 'claude-3-haiku-20240307',
-			max_tokens: 2000, // Increased max_tokens value
+			max_tokens: 1500, // Increased max_tokens value
 			system: BOAT_BROKER_PROMPT,
 			messages: [
 				{
