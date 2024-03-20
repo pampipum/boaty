@@ -1,3 +1,5 @@
+FROM node:19.7-alpine as sk-build
+WORKDIR /usr/src/app
 
 COPY . /usr/src/app
 RUN apk --no-cache add curl tzdata
