@@ -2,6 +2,7 @@ FROM node:21-alpine3.18 AS sk-build
 WORKDIR /usr/src/app
 
 ARG PUBLIC_HELLO
+ARG DATABASE_URL
 
 COPY . /usr/src/app
 RUN apk --no-cache add curl

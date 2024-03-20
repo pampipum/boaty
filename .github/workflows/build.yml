@@ -19,6 +19,7 @@ jobs:
           containerRegistry: true
           buildArgs: |
             PUBLIC_HELLO=world
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
       - name: Deploy on CapRover
         uses: caprover/deploy-from-github@v1.1.2
         with:
