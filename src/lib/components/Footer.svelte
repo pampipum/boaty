@@ -1,3 +1,4 @@
+
 <script lang="ts">
     export let copyrightText: string = "© 2024 Broker Your Boat";
   </script>
