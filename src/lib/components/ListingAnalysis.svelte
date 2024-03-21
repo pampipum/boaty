@@ -89,7 +89,9 @@
     <Table.Head class="bg-gray-500 text-white py-4">
       Listing Text
       <Dialog.Root>
-        <Dialog.Trigger class={buttonVariants({ variant: "outline" })}>More info</Dialog.Trigger>
+        <Dialog.Trigger class="{buttonVariants({ variant: 'outline' })} mt-2 mx-auto">
+          More info
+        </Dialog.Trigger>
         <Dialog.Content>
           <Dialog.Header>
             <Dialog.Title>Providing Listing Text</Dialog.Title>
@@ -112,7 +114,7 @@
   <Table.Row>
     <Table.Cell class="text-white py-4">Listing Analysis</Table.Cell>
     {#each selectedBoats as _, i}
-      <Table.Cell>
+      <Table.Cell class="md:table-cell block">
         {#if isLoading[i]}
           <span class="text-white">Loading...</span>
         {:else}
@@ -125,16 +127,32 @@
   </Table.Row>
   {#if analysisResults.some(result => result !== '')}
     <Table.Row>
-      <Table.Cell class="font-semibold">Analysis Result</Table.Cell>
-      {#each selectedBoats as _, i}
-        <Table.Cell>
-          {#if analysisResults[i]}
-            <div class="w-full p-4 border rounded whitespace-pre-wrap overflow-auto">
-              {analysisResults[i]}
-            </div>
-          {/if}
-        </Table.Cell>
-      {/each}
+      <Table.Cell colspan={selectedBoats.length + 1}>
+        <div class="md:hidden">
+          {#each selectedBoats as _, i}
+            {#if analysisResults[i]}
+              <div class="w-full p-4 border rounded whitespace-pre-wrap overflow-auto">
+                <div class="font-semibold mb-2">Analysis Result:</div>
+                {analysisResults[i]}
+              </div>
+            {/if}
+          {/each}
+        </div>
+        <div class="hidden md:block">
+          <Table.Row>
+            <Table.Cell class="font-semibold">Analysis Result</Table.Cell>
+            {#each selectedBoats as _, i}
+              <Table.Cell>
+                {#if analysisResults[i]}
+                  <div class="w-full p-4 border rounded whitespace-pre-wrap overflow-auto">
+                    {analysisResults[i]}
+                  </div>
+                {/if}
+              </Table.Cell>
+            {/each}
+          </Table.Row>
+        </div>
+      </Table.Cell>
     </Table.Row>
   {/if}
 </Table.Body>

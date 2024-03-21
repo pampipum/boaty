@@ -109,6 +109,7 @@
               legend: {
                 labels: {
                   color: '#e2e8f0', // Adjust legend label color for dark mode
+                  
                 },
               },
             },
@@ -119,12 +120,12 @@
   }
 </script>
   
-<div class="grid grid-cols-3">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
   {#if selectedBoats.length > 0}
-    <div class="col-span-2">
+    <div class="md:col-span-2">
       <canvas bind:this={chartElement}></canvas>
     </div>
-    <div class="col-span-1">
+    <div>
       <h3 class="font-semibold mb-2">Value Ranges and Meanings:</h3>
       <Accordion.Root class="w-full">
         {#each metricRanges as metric}
