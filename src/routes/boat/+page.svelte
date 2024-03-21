@@ -71,20 +71,20 @@
         class="w-full p-2 rounded border shadow-sm"
       />
       {#if filteredBoats.length > 0}
-        <ul class="absolute z-10 w-full bg-white shadow-lg max-h-60 overflow-auto dropdown-menu">
-          {#each filteredBoats as boat (boat.model)}
-            <li>
-              <button
-                type="button"
-                on:click={() => selectBoat(boat.model)}
-                class="block w-full text-left p-2 hover:bg-muted hover:text-muted-foreground"
-              >
-                {boat.model}
-              </button>
-            </li>
-          {/each}
-        </ul>
-      {/if}
+      <ul class="absolute z-10 w-full bg-white shadow-lg max-h-60 overflow-auto dropdown-menu">
+        {#each filteredBoats as boat, index (boat.model + '_' + index)}
+          <li>
+            <button
+              type="button"
+              on:click={() => selectBoat(boat.model)}
+              class="block w-full text-left p-2 hover:bg-muted hover:text-muted-foreground"
+            >
+              {boat.model}
+            </button>
+          </li>
+        {/each}
+      </ul>
+    {/if}
     </div>
 
     <!-- Render the table -->
