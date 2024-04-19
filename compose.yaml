@@ -1,0 +1,18 @@
+version: '3'
+services:
+  broker-your-boat:
+    image: ghcr.io/pampipum/boaty:latest
+    ports:
+      - '5004:3000'
+    environment:
+      - PUBLIC_HELLO=world
+      - DATABASE_URL=$DATABASE_URL
+      - SVELTEKIT_PORT=$SVELTEKIT_PORT
+      - GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+      - FROM_EMAIL=$FROM_EMAIL
+      - RESEND_API_KEY=$RESEND_API_KEY
+      - AXIOM_TOKEN=$AXIOM_TOKEN
+      - AXIOM_ORG_ID=$AXIOM_ORG_ID
+      - AXIOM_DATASET=$AXIOM_DATASET
+      - CLAUDE_API_KEY=$CLAUDE_API_KEY
